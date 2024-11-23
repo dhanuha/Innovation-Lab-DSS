@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee" uses_arrays="1"/>
+		<name>Modelprop final</name>
+		<uuid>51670116-9d43-491a-a3f2-020df4ba272c</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="1.9.5" isee:build_number="2097" isee:saved_by_v1="true" lang="en">Stella Architect</product>
+	</header>
+	<sim_specs isee:sim_duration="ss" isee:restore_on_start="false" method="Euler" time_units="Quarters" isee:instantaneous_flows="false">
+		<start>1</start>
+		<stop>20</stop>
+		<dt>1</dt>
+	</sim_specs>
+	<dimensions>
+		<dim name="Dimension_1" size="4"/>
+	</dimensions>
+	<isee:prefs show_module_prefix="true" live_update_on_drag="true" show_restore_buttons="false" layer="model" interface_scale_ui="true" interface_max_page_width="10000" interface_max_page_height="10000" interface_min_page_width="0" interface_min_page_height="0" saved_runs="5" keep="false" rifp="true"/>
+	<isee:multiplayer_settings include_chat="true" allow_observers="false" advance_time_increment="1" observer_start_page="home_page" enabled="false"/>
+	<isee:time_formats default_format="Builtin">
+		<isee:time_format name="Builtin" type="adaptive"/>
+	</isee:time_formats>
+	<default_format/>
+	<isee:sensi_specs_list active_index="0">
+		<isee:sensi_specs name="Sensitivity" method="grid"/>
+	</isee:sensi_specs_list>
+	<isee:optimizer_specs_list active_index="0">
+		<isee:optimizer_specs name="Optimization" method="Powell" additional_starts="0" report_interval="1" confidence_range="0"/>
+	</isee:optimizer_specs_list>
+	<isee:payoff_specs_list>
+		<isee:payoff_specs name="Payoff"/>
+	</isee:payoff_specs_list>
+	<model_units>
+		<unit name="Australian Dollars">
+			<eqn/>
+			<alias>AUD</alias>
+			<alias>australian dollar</alias>
+		</unit>
+		<unit name="Quarters">
+			<eqn/>
+			<alias>qtr</alias>
+			<alias>quarter</alias>
+		</unit>
+	</model_units>
+	<model>
+		<variables>
+			<stock name="Approved projects">
+				<eqn>0</eqn>
+				<inflow>approval_rate</inflow>
+				<outflow>progress_rate</outflow>
+				<non_negative/>
+				<units>projects</units>
+			</stock>
+			<stock name="on going projects">
+				<eqn>Approved_projects - (Approved_projects*cancelling_rate)</eqn>
+				<inflow>progress_rate</inflow>
+				<outflow>completion_rate</outflow>
+				<non_negative/>
+				<units>projects</units>
+			</stock>
+			<stock name="completed projects">
+				<eqn>completion_rate</eqn>
+				<inflow>completion_rate</inflow>
+				<units>projects</units>
+			</stock>
+			<flow name="proposing rate">
+				<eqn>IF TIME &gt; 1 THEN ((initial_proposing_rate*business_units)*qg*ss) + new_project_proposals
+ELSE
+ ((initial_proposing_rate*business_units)*qg*ss)</eqn>
+				<non_negative/>
+				<units>projects/Quarters</units>
+			</flow>
+			<flow name="approval rate">
+				<eqn>MIN(approved_rate_per_qu,proposed_project)</eqn>
+				<non_negative/>
+				<units>projects/Quarters</units>
+			</flow>
+			<flow name="progress rate">
+				<eqn>Approved_projects - (Approved_projects*cancelling_rate)</eqn>
+				<non_negative/>
+				<units>projects/Quarters</units>
+			</flow>
+			<flow name="completion rate">
+				<eqn>(on_going_projects - (on_going_projects*suspended_rate))</eqn>
+				<non_negative/>
+				<units>projects/Quarters</units>
+			</flow>
+			<aux name="business units">
+				<eqn>6</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="initial proposing rate">
+				<eqn>2.5</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="quarterly growth">
+				<eqn>0.015</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="q1">
+				<eqn>1</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="q2">
+				<eqn>0.75</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="q3">
+				<eqn>1.25</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="q4">
+				<eqn>1.4</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="seasonal">
+				<dimensions>
+					<dim name="Dimension_1"/>
+				</dimensions>
+				<element subscript="1">
+					<eqn>q1</eqn>
+				</element>
+				<element subscript="2">
+					<eqn>q2</eqn>
+				</element>
+				<element subscript="3">
+					<eqn>q3</eqn>
+				</element>
+				<element subscript="4">
+					<eqn>q4</eqn>
+				</element>
+				<units>projects</units>
+			</aux>
+			<aux name="ss">
+				<eqn>seasonal[(TIME-1) MOD 4 + 1]</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="qg">
+				<eqn>(1 + quarterly_growth)^(TIME-1)</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="budget per quarter">
+				<eqn>rised_yearly_budget/4</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="budget per project">
+				<eqn>150000</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="staff per quarter">
+				<eqn>rised_yearly_staff/4</eqn>
+				<units>staff</units>
+			</aux>
+			<aux name="staff per project">
+				<eqn>3.5</eqn>
+				<units>staff</units>
+			</aux>
+			<aux name="bud constraint">
+				<eqn>budget_per_quarter/budget_per_project</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="resource constraint">
+				<eqn>available_staff/staff_per_project</eqn>
+				<units>staff</units>
+			</aux>
+			<aux name="approved rate per qu">
+				<eqn>MIN(bud_constraint, resource_constraint)</eqn>
+				<units>projects</units>
+			</aux>
+			<aux name="rised yearly budget">
+				<eqn>IF TIME &lt;= 4 THEN
+  initial_y_bg
+ELSE IF TIME &lt;= 8 THEN
+  initial_y_bg*(1+0.03)
+ELSE IF TIME &lt;= 12 THEN
+  initial_y_bg*(1+0.03)^2
+ELSE IF TIME &lt;= 16 THEN
+  initial_y_bg*(1+0.03)^3
+ELSE IF TIME &lt;= 20 THEN
+  initial_y_bg*(1+0.03)^4
+ELSE
+  0</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="initial y bg">
+				<eqn>12500000</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="rised yearly staff">
+				<eqn>IF TIME &lt;= 4 THEN
+  initial_y_staff
+ELSE IF TIME &lt;= 8 THEN
+  initial_y_staff*(1+0.055)
+ELSE IF TIME &lt;= 12 THEN
+  initial_y_staff*(1+0.055)^2
+ELSE IF TIME &lt;= 16 THEN
+  initial_y_staff*(1+0.055)^3
+ELSE IF TIME &lt;= 20 THEN
+  initial_y_staff*(1+0.055)^4
+ELSE
+  0</eqn>
+				<units>staff</units>
+			</aux>
+			<aux name="initial y staff">
+				<eqn>420</eqn>
+				<units>staff</units>
+			</aux>
+			<stock name="proposed project">
+				<eqn>proposing_rate</eqn>
+				<inflow>proposing_rate</inflow>
+				<outflow>approval_rate</outflow>
+				<units>projects</units>
+			</stock>
+			<aux name="cancelling rate">
+				<eqn>cancellation_percent/100</eqn>
+			</aux>
+			<aux name="suspended rate">
+				<eqn>sunspension_percent/100</eqn>
+			</aux>
+			<aux name="total revenue">
+				<eqn>completed_projects*rev_per_project</eqn>
+			</aux>
+			<aux name="rev per project">
+				<eqn>850000</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="profit">
+				<eqn>total_revenue-total_cost</eqn>
+			</aux>
+			<aux name="cost of projects">
+				<eqn>completed_projects*budget_per_project</eqn>
+			</aux>
+			<aux name="cost of staff">
+				<eqn>staff_per_project*completed_projects*salary_of_staff_per_quarter*duration_of_project</eqn>
+			</aux>
+			<aux name="total cost">
+				<eqn>cost_of_staff+cost_of_projects</eqn>
+			</aux>
+			<aux name="unavailable staff">
+				<eqn>on_going_projects*staff_per_project</eqn>
+			</aux>
+			<aux name="available staff">
+				<eqn>staff_per_quarter-unavailable_staff</eqn>
+			</aux>
+			<aux name="new project proposals">
+				<eqn>completion_rate*0.01</eqn>
+			</aux>
+			<aux name="project replication">
+				<eqn>completion_rate*0.02</eqn>
+			</aux>
+			<aux name="salary of staff per quarter">
+				<eqn>annual_staff_salary/4</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="duration of project">
+				<eqn>1.5</eqn>
+				<units>Quarters</units>
+			</aux>
+			<aux name="annual staff salary">
+				<eqn>100000</eqn>
+				<units>AUD</units>
+			</aux>
+			<aux name="cancellation percent">
+				<eqn>1</eqn>
+			</aux>
+			<aux name="sunspension percent">
+				<eqn>5</eqn>
+			</aux>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:loop_indicator color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="ending" report_flows="summed" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" border_width="thin" border_style="solid" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" border_width="thin" border_style="solid" transparent="false" corner_radius="0" isee:flat="false" icon_side="top" isee:highlight_on_hover="false" isee:highlight_color="#959595" popup_corner_radius="0" popup_background_color="#FFFECF"/>
+				<slider color="#66CC66" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" vertical="false" isee:fancy_appearance="false" isee:show_hover_tip="when_deciding" input_expands="true" input_width="100"/>
+				<isee:sim_speed_slider color="black" background="white"/>
+				<isee:time_slider color="#E95F74" background="silver"/>
+				<isee:pie_input color="black" background="white" font_size="12pt" legend_position="bottom" isee:transparent="false"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch" isee:on_color="green"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt" isee:show_hover_tip="true"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" font_size="9pt" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="11" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white" font_size="12pt"/>
+				<isee:animation_object color="black" background="white" font_size="12pt"/>
+				<isee:navigation_widget color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_color="#999999" border_width="thin" border_style="solid" item_spacing="6" appearance="tabs" corner_radius="4" selected_item_color="black" selected_item_background="white" item_background="#DDDDDD"/>
+				<isee:shape color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_width="thin" border_style="solid" opacity="1" transparent_background="true"/>
+				<isee:selector color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<isee:iframe color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt" border_width="thin" border_style="solid"/>
+				<isee:financial_table color="black" background="#E0E0E0" text_align="right" font_size="12pt" auto_fit="true" first_column_width="250" other_column_width="100" header_font_style="normal" header_font_weight="bold" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="14pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+			</style>
+			<view isee:show_pages="false" background="white" page_width="1056" page_height="816" isee:page_cols="2" isee:page_rows="2" isee:scroll_x="39" isee:scroll_y="104" isee:popup_graphs_are_comparative="true" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom"/>
+					<isee:placeholder color="#228B22" background="white" font_color="#228B22" font_size="9pt" label_side="bottom"/>
+					<module color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="9pt"/>
+					<connector color="#FF007F" background="white" font_color="#FF007F" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<isee:loop_indicator color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" isee:graph_area_color="white" legend_position="bottom" isee:transparent="false" isee:hide_border="false" axis_title_font_style="normal" axis_title_font_weight="normal" axis_title_text_decoration="none" axis_title_text_align="center" axis_title_vertical_text_align="center" axis_title_font_color="black" axis_title_font_family="Arial" axis_title_font_size="12pt" axis_title_text_padding="2" axis_title_text_border_color="black" axis_title_text_border_width="thin" axis_title_text_border_style="none" axis_label_font_style="normal" axis_label_font_weight="normal" axis_label_text_decoration="none" axis_label_text_align="center" axis_label_vertical_text_align="center" axis_label_font_color="black" axis_label_font_family="Arial" axis_label_font_size="9pt" axis_label_text_padding="2" axis_label_text_border_color="black" axis_label_text_border_width="thin" axis_label_text_border_style="none">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" interval="1" report_balances="ending" report_flows="summed" header_font_style="normal" header_font_weight="normal" header_text_decoration="none" header_text_align="center" header_vertical_text_align="center" header_font_color="black" header_font_family="Arial" header_font_size="12pt" header_text_padding="2" header_text_border_color="black" header_text_border_width="thin" header_text_border_style="none"/>
+				</style>
+				<stock x="658" y="325" name="Approved projects"/>
+				<stock x="871.75" y="329" name="on going projects"/>
+				<stock x="1199" y="329" name="completed projects"/>
+				<flow x="184.5" y="329" name="proposing rate">
+					<pts>
+						<pt x="6" y="329"/>
+						<pt x="363" y="329"/>
+					</pts>
+				</flow>
+				<flow x="515.75" y="325" name="approval rate">
+					<pts>
+						<pt x="408" y="325"/>
+						<pt x="635.5" y="325"/>
+					</pts>
+				</flow>
+				<flow label_side="bottom" x="758.875" y="329" name="progress rate">
+					<pts>
+						<pt x="680.5" y="329"/>
+						<pt x="849.25" y="329"/>
+					</pts>
+				</flow>
+				<flow x="1029.38" y="329" name="completion rate">
+					<pts>
+						<pt x="894.25" y="329"/>
+						<pt x="1176.5" y="329"/>
+					</pts>
+				</flow>
+				<aux x="120" y="422" name="business units"/>
+				<aux x="187.75" y="440" name="initial proposing rate"/>
+				<aux x="261" y="422" name="quarterly growth"/>
+				<aux x="91" y="180" name="q1"/>
+				<aux x="138" y="121" name="q2"/>
+				<aux x="187.75" y="110" name="q3"/>
+				<aux x="248" y="116" name="q4"/>
+				<aux x="184" y="191" name="seasonal"/>
+				<aux x="202" y="253" name="ss"/>
+				<connector uid="1" angle="5.03304">
+					<from>q1</from>
+					<to>seasonal</to>
+				</connector>
+				<connector uid="2" angle="303.311">
+					<from>q2</from>
+					<to>seasonal</to>
+				</connector>
+				<connector uid="3" angle="283.241">
+					<from>q3</from>
+					<to>seasonal</to>
+				</connector>
+				<connector uid="4" angle="251.565">
+					<from>q4</from>
+					<to>seasonal</to>
+				</connector>
+				<connector uid="5" angle="302.574">
+					<from>seasonal</from>
+					<to>ss</to>
+				</connector>
+				<connector uid="6" angle="55.2568">
+					<from>business_units</from>
+					<to>proposing_rate</to>
+				</connector>
+				<connector uid="7" angle="91.6771">
+					<from>initial_proposing_rate</from>
+					<to>proposing_rate</to>
+				</connector>
+				<connector uid="8" angle="257.033">
+					<from>ss</from>
+					<to>proposing_rate</to>
+				</connector>
+				<stacked_container uid="9" x="335.25" y="279" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250" isee:time_format="Builtin">
+						<item type="time"/>
+					</table>
+				</stacked_container>
+				<stacked_container uid="10" x="300" y="490" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250" isee:time_format="Builtin">
+						<item type="time"/>
+						<item>
+							<entity name="proposing_rate"/>
+						</item>
+						<item>
+							<entity name="proposed_project"/>
+						</item>
+						<item>
+							<entity name="approval_rate"/>
+						</item>
+						<item>
+							<entity name="Approved_projects"/>
+						</item>
+					</table>
+				</stacked_container>
+				<aux x="223.75" y="382" name="qg"/>
+				<connector uid="11" angle="132.961">
+					<from>quarterly_growth</from>
+					<to>qg</to>
+				</connector>
+				<connector uid="12" angle="126.522">
+					<from>qg</from>
+					<to>proposing_rate</to>
+				</connector>
+				<aux x="365" y="612" name="budget per quarter"/>
+				<aux label_side="bottom" x="435" y="644" name="budget per project"/>
+				<aux x="548" y="612" name="staff per quarter"/>
+				<aux x="651" y="594" name="staff per project"/>
+				<aux label_side="right" label_angle="315" x="417" y="508" name="bud constraint"/>
+				<aux x="575" y="502" name="resource constraint"/>
+				<connector uid="13" angle="63.4349">
+					<from>budget_per_quarter</from>
+					<to>bud_constraint</to>
+				</connector>
+				<connector uid="14" angle="76.7595">
+					<from>budget_per_project</from>
+					<to>bud_constraint</to>
+				</connector>
+				<connector uid="15" angle="91.9092">
+					<from>staff_per_project</from>
+					<to>resource_constraint</to>
+				</connector>
+				<connector uid="16" angle="69.0755">
+					<from>bud_constraint</from>
+					<to>approved_rate_per_qu</to>
+				</connector>
+				<connector uid="17" angle="78.9965">
+					<from>resource_constraint</from>
+					<to>approved_rate_per_qu</to>
+				</connector>
+				<aux label_side="left" label_angle="225" x="515" y="422" name="approved rate per qu"/>
+				<connector uid="18" angle="89.557">
+					<from>approved_rate_per_qu</from>
+					<to>approval_rate</to>
+				</connector>
+				<stacked_container uid="19" x="304" y="548" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250" isee:time_format="Builtin">
+						<item type="time"/>
+						<item>
+							<entity name="Approved_projects"/>
+						</item>
+						<item>
+							<entity name="business_units"/>
+						</item>
+					</table>
+				</stacked_container>
+				<aux x="305" y="683" name="rised yearly budget"/>
+				<aux x="261" y="743" name="initial y bg"/>
+				<connector uid="20" angle="65.6955">
+					<from>initial_y_bg</from>
+					<to>rised_yearly_budget</to>
+				</connector>
+				<connector uid="21" angle="59.3003">
+					<from>rised_yearly_budget</from>
+					<to>budget_per_quarter</to>
+				</connector>
+				<stacked_container uid="22" x="467" y="570" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="summed" width="350" height="250" isee:time_format="Builtin">
+						<item type="time"/>
+						<item>
+							<entity name="rised_yearly_budget"/>
+						</item>
+						<item>
+							<entity name="budget_per_quarter"/>
+						</item>
+					</table>
+				</stacked_container>
+				<aux x="530" y="686" name="rised yearly staff"/>
+				<aux x="487" y="748" name="initial y staff"/>
+				<connector uid="23" angle="65.6955">
+					<from>initial_y_staff</from>
+					<to>rised_yearly_staff</to>
+				</connector>
+				<connector uid="24" angle="76.3287">
+					<from>rised_yearly_staff</from>
+					<to>staff_per_quarter</to>
+				</connector>
+				<stacked_container uid="25" x="881.375" y="582" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250" isee:time_format="Builtin">
+						<item type="time"/>
+						<item>
+							<entity name="staff_per_quarter"/>
+						</item>
+						<item>
+							<entity name="available_staff"/>
+						</item>
+						<item>
+							<entity name="unavailable_staff"/>
+						</item>
+					</table>
+				</stacked_container>
+				<stacked_container uid="26" x="817" y="158" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250">
+						<item type="time"/>
+						<item>
+							<entity name="proposed_project"/>
+						</item>
+						<item>
+							<entity name="proposing_rate"/>
+						</item>
+						<item>
+							<entity name="Approved_projects"/>
+						</item>
+						<item>
+							<entity name="on_going_projects"/>
+						</item>
+						<item>
+							<entity name="completed_projects"/>
+						</item>
+					</table>
+				</stacked_container>
+				<stock x="385.5" y="329" name="proposed project"/>
+				<connector uid="27" angle="321.576">
+					<from>Approved_projects</from>
+					<to>progress_rate</to>
+				</connector>
+				<aux x="677" y="249" name="cancelling rate"/>
+				<connector uid="28" angle="1.90915">
+					<from>cancelling_rate</from>
+					<to>progress_rate</to>
+				</connector>
+				<stacked_container uid="29" x="456" y="186.5" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250">
+						<item type="time"/>
+						<item>
+							<entity name="on_going_projects"/>
+						</item>
+						<item>
+							<entity name="Approved_projects"/>
+						</item>
+						<item>
+							<entity name="approval_rate"/>
+						</item>
+						<item>
+							<entity name="completion_rate"/>
+						</item>
+					</table>
+				</stacked_container>
+				<connector uid="30" angle="311.654">
+					<from>on_going_projects</from>
+					<to>completion_rate</to>
+				</connector>
+				<aux x="871.75" y="235" name="suspended rate"/>
+				<connector uid="31" angle="18.3056">
+					<from>suspended_rate</from>
+					<to>completion_rate</to>
+				</connector>
+				<connector uid="32" angle="35.3625">
+					<from>proposed_project</from>
+					<to>approval_rate</to>
+				</connector>
+				<aux x="1239" y="404" name="total revenue"/>
+				<connector uid="33" angle="12.6804">
+					<from>completed_projects</from>
+					<to>total_revenue</to>
+				</connector>
+				<aux x="1306" y="490" name="rev per project"/>
+				<connector uid="34" angle="72.5528">
+					<from>rev_per_project</from>
+					<to>total_revenue</to>
+				</connector>
+				<stacked_container uid="35" x="913.875" y="691" minimized="true">
+					<table interval="1" report_balances="beginning" report_flows="instantaneous" width="350" height="250">
+						<item type="time"/>
+						<item>
+							<entity name="total_revenue"/>
+						</item>
+						<item>
+							<entity name="profit"/>
+						</item>
+						<item>
+							<entity name="total_cost"/>
+						</item>
+						<item>
+							<entity name="completion_rate"/>
+						</item>
+						<item>
+							<entity name="new_project_proposals"/>
+						</item>
+					</table>
+				</stacked_container>
+				<aux x="1438" y="385" width="20" height="20" name="profit"/>
+				<connector uid="36" angle="78.3664">
+					<from>total_revenue</from>
+					<to>profit</to>
+				</connector>
+				<aux x="1230.5" y="229" name="cost of projects"/>
+				<connector uid="37" angle="27.5528">
+					<from>budget_per_project</from>
+					<to>cost_of_projects</to>
+				</connector>
+				<connector uid="38" angle="83.3675">
+					<from>completed_projects</from>
+					<to>cost_of_projects</to>
+				</connector>
+				<aux x="1134" y="134" name="cost of staff"/>
+				<connector uid="39" angle="43.6028">
+					<from>staff_per_project</from>
+					<to>cost_of_staff</to>
+				</connector>
+				<connector uid="40" angle="108.435">
+					<from>completed_projects</from>
+					<to>cost_of_staff</to>
+				</connector>
+				<aux x="1281" y="121" name="total cost"/>
+				<connector uid="41" angle="19.9831">
+					<from>cost_of_staff</from>
+					<to>total_cost</to>
+				</connector>
+				<connector uid="42" angle="50.1944">
+					<from>cost_of_projects</from>
+					<to>total_cost</to>
+				</connector>
+				<connector uid="43" angle="325.222">
+					<from>total_cost</from>
+					<to>profit</to>
+				</connector>
+				<aux x="932" y="508" name="unavailable staff"/>
+				<connector uid="44" angle="301.718">
+					<from>on_going_projects</from>
+					<to>unavailable_staff</to>
+				</connector>
+				<connector uid="45" angle="17.0167">
+					<from>staff_per_project</from>
+					<to>unavailable_staff</to>
+				</connector>
+				<aux x="515" y="561" name="available staff"/>
+				<connector uid="46" angle="122.905">
+					<from>staff_per_quarter</from>
+					<to>available_staff</to>
+				</connector>
+				<connector uid="47" angle="44.5185">
+					<from>available_staff</from>
+					<to>resource_constraint</to>
+				</connector>
+				<connector uid="48" angle="219.289">
+					<from>unavailable_staff</from>
+					<to>available_staff</to>
+				</connector>
+				<aux x="1147" y="465" name="new project proposals"/>
+				<connector uid="49" angle="327.153">
+					<from>completion_rate</from>
+					<to>new_project_proposals</to>
+				</connector>
+				<aux x="1054.38" y="490" name="project replication"/>
+				<connector uid="50" angle="291.407">
+					<from>completion_rate</from>
+					<to>project_replication</to>
+				</connector>
+				<stacked_container uid="51" x="1018" y="614" minimized="true">
+					<table width="350" height="250">
+						<item type="time"/>
+						<item>
+							<entity name="new_project_proposals"/>
+						</item>
+						<item>
+							<entity name="project_replication"/>
+						</item>
+					</table>
+				</stacked_container>
+				<stacked_container uid="52" x="722.875" y="22" width="284" height="209" minimized="true">
+					<table width="284" height="209">
+						<item type="time"/>
+						<item>
+							<entity name="cost_of_staff"/>
+						</item>
+						<item>
+							<entity name="profit"/>
+						</item>
+						<item>
+							<entity name="total_cost"/>
+						</item>
+						<item>
+							<entity name="available_staff"/>
+						</item>
+						<item>
+							<entity name="unavailable_staff"/>
+						</item>
+					</table>
+				</stacked_container>
+				<aux x="997" y="142" name="salary of staff per quarter"/>
+				<aux x="1044" y="85" name="duration of project"/>
+				<connector uid="53" angle="27.2996">
+					<from>salary_of_staff_per_quarter</from>
+					<to>cost_of_staff</to>
+				</connector>
+				<connector uid="54" angle="8.88066">
+					<from>duration_of_project</from>
+					<to>cost_of_staff</to>
+				</connector>
+				<aux x="844" y="142" name="annual staff salary"/>
+				<connector uid="55" angle="58.3925">
+					<from>annual_staff_salary</from>
+					<to>salary_of_staff_per_quarter</to>
+				</connector>
+				<aux x="600" y="240" name="cancellation percent"/>
+				<connector uid="56" angle="45">
+					<from>cancellation_percent</from>
+					<to>cancelling_rate</to>
+				</connector>
+				<aux x="775.875" y="222" name="sunspension percent"/>
+				<connector uid="57" angle="52.3297">
+					<from>sunspension_percent</from>
+					<to>suspended_rate</to>
+				</connector>
+				<connector uid="58" angle="266.186">
+					<from>new_project_proposals</from>
+					<to>proposing_rate</to>
+				</connector>
+			</view>
+			<view isee:template_view="template:2" background="white" page_width="1066" page_height="600" home_view="true" type="interface">
+				<style/>
+				<button label="start" uid="59" x="307" y="162">
+					<actions>
+						<action target="interface:1">navigate</action>
+						<action>unknown</action>
+					</actions>
+				</button>
+				<text_box border_color="#AAAAFF" appearance="transparent" uid="60" x="89" y="111" width="260" height="67">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Elephant&apos;; font-size:20pt;&quot;&gt;click here to get started&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+			</view>
+			<view isee:template_view="template:1" background="white" page_width="1066" page_height="600" type="interface">
+				<style/>
+				<stacked_container uid="61" x="306" y="149" width="429" height="279">
+					<graph background="#C8C8C8" isee:graph_area_color="white" width="429" height="279" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.12" isee:allow_zero_axis="true" left_axis_title=" AUD" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="#8D8DD3" isee:keep_zero_visible="false" pen_width="3" index="0" show_y_axis="true">
+							<entity name="profit"/>
+							<scale min="0"/>
+						</plot>
+						<plot color="red" isee:keep_zero_visible="true" pen_width="1" index="1" show_y_axis="true">
+							<entity name="total_cost"/>
+						</plot>
+						<plot color="fuchsia" pen_style="dotted" isee:keep_zero_visible="true" pen_width="1" index="2" show_y_axis="true">
+							<entity name="cost_of_staff"/>
+						</plot>
+						<plot color="#008F44" pen_style="dashed" isee:keep_zero_visible="true" pen_width="1" index="3" show_y_axis="true">
+							<entity name="cost_of_projects"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<button font_color="#8585C8" border_width="2" label="run" uid="62" x="399" y="496">
+					<actions>
+						<action>start_stella_live</action>
+					</actions>
+				</button>
+				<slider font_weight="bold" font_color="#8585C8" font_family="Cooper Black" font_size="14pt" num_ticks="2" label_side="left" uid="63" x="20.5" y="164" width="229" height="58" increment="1" min="1" max="20" title="Business Units" isee:navigate_to="false" show_name="true">
+					<entity name="business_units"/>
+					<reset_to after="one_time_unit">6</reset_to>
+				</slider>
+				<slider font_weight="bold" font_color="#8585C8" font_family="Cooper Black" font_size="14pt" num_ticks="2" label_side="left" uid="64" x="14.5" y="237" width="229" height="58" increment="0.5" min="1" max="10" title="initial no.of projects per business unit" isee:navigate_to="false" show_name="true">
+					<entity name="initial_proposing_rate"/>
+					<reset_to after="one_time_unit">2.5</reset_to>
+				</slider>
+				<isee:time_slider color="#8585C8" background="#070707" interactive="true" uid="65" x="304.5" y="431" width="422" height="39"/>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="66" x="17.5" y="318.5" width="214" height="39" increment="500000" min="5000000" title="initial yearly budget" isee:navigate_to="false" show_name="true">
+					<entity name="initial_y_bg"/>
+					<reset_to after="one_time_unit">12500000</reset_to>
+				</numeric_input>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="67" x="17.5" y="389" width="214" height="39" increment="10" min="200" title="initial staff per year" isee:navigate_to="false" show_name="true">
+					<entity name="initial_y_staff"/>
+					<reset_to after="one_time_unit">420</reset_to>
+				</numeric_input>
+				<text_box uid="68" x="20" y="141" width="260" height="23">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Cooper Black&apos;; font-size:12pt; font-weight:600; color:#626262;&quot;&gt;You can change Values here&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<stacked_container uid="69" x="768" y="151" width="249" height="325">
+					<table background="#C8C8C8" font_weight="bold" font_family="Arial Black" isee:auto_fit="true" isee:use_alternate_row_colors="true" interval="1" report_balances="ending" report_flows="summed" header_font_family="Arial Black" width="249" height="325">
+						<item type="time"/>
+						<item>
+							<entity name="total_cost"/>
+						</item>
+						<item>
+							<entity name="profit"/>
+						</item>
+					</table>
+				</stacked_container>
+				<button label="next page" uid="70" x="1026" y="578">
+					<actions>
+						<action target="interface:2">navigate</action>
+					</actions>
+				</button>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="71" x="17.5" y="464.5" width="214" height="39" increment="0.5" min="1" max="420" title="staff working on one project" isee:navigate_to="false" show_name="true">
+					<entity name="staff_per_project"/>
+					<reset_to after="one_time_unit">3.5</reset_to>
+				</numeric_input>
+				<isee:annotation popup_background_color="#8585C8" launcher_label="" show_by_default="true" hide_launcher="true" uid="72" x="972" y="552">
+					<popup x="824" y="564" width="167" height="28">
+						<text>additional info click here</text>
+					</popup>
+				</isee:annotation>
+				<text_box uid="73" x="348.5" y="80" width="334" height="41">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Cooper Black&apos;; font-size:22pt; font-weight:600;&quot;&gt;Financial Forecast&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="74" x="22" y="525" width="214" height="39" increment="10000" min="50000" title="annual staff salary" isee:navigate_to="false" show_name="true">
+					<entity name="annual_staff_salary"/>
+					<reset_to after="one_time_unit">100000</reset_to>
+				</numeric_input>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="75" x="0" y="0" width="214" height="39" increment="10000" min="50000" title="annual staff salary" isee:navigate_to="false" show_name="true">
+					<entity name="annual_staff_salary"/>
+					<reset_to after="one_time_unit">100000</reset_to>
+				</numeric_input>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="76" x="0" y="0" width="214" height="39" increment="10000" min="50000" title="annual staff salary" isee:navigate_to="false" show_name="true">
+					<entity name="annual_staff_salary"/>
+					<reset_to after="one_time_unit">100000</reset_to>
+				</numeric_input>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="77" x="277" y="525" width="214" height="39" increment="10000" min="50000" title="cost of one project" isee:navigate_to="false" show_name="true">
+					<entity name="budget_per_project"/>
+					<reset_to after="one_time_unit">150000</reset_to>
+				</numeric_input>
+				<text_box uid="78" x="826" y="491" width="226" height="58">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Gill Sans Ultra Bold&apos;; font-size:12pt; font-weight:600; color:#aaaaff;&quot;&gt;To adjust cancellation and suspension rates, go to the next page.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<button border_width="1.7" label="stop" uid="79" x="639" y="496">
+					<actions>
+						<action>stop_stella_live</action>
+					</actions>
+				</button>
+			</view>
+			<view isee:template_view="template:1" background="white" page_width="1066" page_height="600" type="interface">
+				<style/>
+				<stacked_container uid="80" x="34" y="114" width="307" height="236">
+					<graph background="#D8D1E1" width="307" height="236" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_title="no of staff" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="available_staff"/>
+						</plot>
+						<plot color="red" pen_style="dot_dashed" isee:keep_zero_visible="true" pen_width="1" index="1" show_y_axis="true">
+							<entity name="staff_per_quarter"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="81" x="714" y="116" width="309" height="238">
+					<graph background="#F0F0F0" width="309" height="238" type="pie" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="#8585C8" pen_style="dot_dashed" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="total_revenue"/>
+						</plot>
+						<plot color="#6B6B6B" title="total expenditure" isee:keep_zero_visible="true" pen_width="1" index="1" show_y_axis="true">
+							<entity name="total_cost"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="82" x="362" y="343" width="324" height="243">
+					<graph background="#F0F0F0" width="324" height="243" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_title="projects" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="new_project_proposals"/>
+						</plot>
+						<plot color="red" pen_style="dot_dashed" isee:keep_zero_visible="true" pen_width="1" index="1" show_y_axis="true">
+							<entity name="project_replication"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<button label="prev page" uid="83" x="1" y="566" width="69" height="30">
+					<actions>
+						<action target="interface:1">navigate</action>
+					</actions>
+				</button>
+				<isee:annotation popup_background_color="#8585C8" launcher_label="" show_by_default="true" hide_launcher="true" uid="84" x="972" y="552">
+					<popup x="70" y="564" width="202" height="28">
+						<text>click here to go to previous page</text>
+					</popup>
+				</isee:annotation>
+				<text_box background="#FAFAFA" text_align="center" font_family="Cooper Black" font_size="16pt" appearance="transparent" uid="85" x="399" y="315" width="260" height="23">Project Dynamics</text_box>
+				<text_box background="#FAFAFA" text_align="center" font_family="Cooper Black" font_size="16pt" appearance="transparent" uid="86" x="57.5" y="91" width="260" height="23">staff availability</text_box>
+				<text_box background="#FAFAFA" text_align="center" font_family="Cooper Black" font_size="16pt" appearance="transparent" uid="87" x="743.5" y="91" width="260" height="23">Revenue vs Expenditure</text_box>
+				<text_box border_color="#040404" border_width="thin" border_style="solid" uid="88" x="693" y="525" width="240" height="58">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Gill Sans Ultra Bold&apos;; font-size:10pt; color:#8181c2;&quot;&gt;This Graph shows New project proposals and replication of completed projects in different business units over time.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="89" x="721.5" y="431.5" width="214" height="39" increment="0.5" min="1" max="100" title="percent of ongoing projects suspended before completion" isee:navigate_to="false" show_name="true">
+					<entity name="sunspension_percent"/>
+					<reset_to after="one_time_unit">5</reset_to>
+				</numeric_input>
+				<numeric_input font_color="#8585D2" font_family="Cooper Black" font_size="14pt" uid="90" x="27.5" y="431.5" width="214" height="39" increment="0.5" min="1" max="100" title="Percentage of approved projects cancelled before starting" isee:navigate_to="false" show_name="true">
+					<entity name="cancellation_percent"/>
+					<reset_to after="one_time_unit">1</reset_to>
+				</numeric_input>
+				<text_box uid="91" x="19" y="380" width="260" height="23">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Cooper Black&apos;; font-size:12pt; font-weight:600; color:#626262;&quot;&gt;You can change Values here&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<text_box uid="92" x="721" y="372" width="260" height="23">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Cooper Black&apos;; font-size:12pt; font-weight:600; color:#626262;&quot;&gt;You can change Values here&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<button label="next page" uid="93" x="1027" y="581">
+					<actions>
+						<action target="interface:3">navigate</action>
+					</actions>
+				</button>
+				<button font_color="#8585C8" border_width="2" label="run" uid="94" x="406" y="221">
+					<actions>
+						<action>start_stella_live</action>
+					</actions>
+				</button>
+				<button border_width="1.7" label="stop" uid="95" x="633" y="221">
+					<actions>
+						<action>stop_stella_live</action>
+					</actions>
+				</button>
+			</view>
+			<view isee:template_view="template:1" background="white" page_width="1066" page_height="600" type="interface">
+				<style/>
+				<stacked_container uid="96" x="41" y="110" width="229" height="220">
+					<graph background="#BABABA" width="229" height="220" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="proposed_project"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="97" x="293" y="110" width="229" height="220">
+					<graph background="#D8D1E1" width="229" height="220" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Approved_projects"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="98" x="48" y="357" width="229" height="220">
+					<graph background="#D8D1E1" width="229" height="220" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="on_going_projects"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="99" x="297" y="353" width="229" height="220">
+					<graph background="#BABABA" width="229" height="220" type="time_series" isee:points_only="false" show_grid="false" include_units_in_legend="false" plot_numbers="false" isee:label_pie_slices="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" isee:fill_intensity="0.1" isee:allow_zero_axis="true" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" isee:keep_zero_visible="true" pen_width="1" index="0" show_y_axis="true">
+							<entity name="completed_projects"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<text_box uid="100" x="345.5" y="66" width="334" height="41">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Cooper Black&apos;; font-size:22pt; font-weight:600;&quot;&gt;Projects Forecast&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				<stacked_container uid="101" x="559" y="116" width="461" height="454">
+					<table background="#BABABA" interval="1" report_balances="ending" report_flows="summed" width="461" height="454">
+						<item type="time"/>
+						<item>
+							<entity name="proposed_project"/>
+						</item>
+						<item>
+							<entity name="Approved_projects"/>
+						</item>
+						<item>
+							<entity name="on_going_projects"/>
+						</item>
+						<item>
+							<entity name="completed_projects"/>
+						</item>
+					</table>
+				</stacked_container>
+				<button label="prev page" uid="102" x="36" y="581">
+					<actions>
+						<action target="interface:2">navigate</action>
+					</actions>
+				</button>
+				<button font_color="#8585C8" border_width="2" label="run" uid="103" x="773" y="90">
+					<actions>
+						<action>start_stella_live</action>
+					</actions>
+				</button>
+				<button border_width="1.7" label="stop" uid="104" x="901" y="90">
+					<actions>
+						<action>stop_stella_live</action>
+					</actions>
+				</button>
+			</view>
+			<isee:templates>
+				<view background="white" page_width="1066" page_height="600" type="template">
+					<style/>
+					<text_box background="#D8D1E1" font_weight="bold" padding="3" border_width="2" border_style="solid" uid="105" x="1" y="3" width="1064" height="58">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Bodoni MT Black&apos;; font-size:36pt; font-weight:600; color:#8585c8;&quot;&gt;LSC SIMULATION&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</text_box>
+				</view>
+				<view isee:template_view="template:1" background="white" page_width="1066" page_height="600" type="template">
+					<style/>
+					<graphics_frame fill="none" uid="106" x="-4" y="56" width="1079" height="544">
+						<image width="1600" height="900" size_to_parent="false" isee:fixed_aspect_ratio="true">//client/H$/Desktop/it decision/ass2/images/output-onlinepngtools.png</image>
+					</graphics_frame>
+				</view>
+			</isee:templates>
+			<isee:stories/>
+		</views>
+	</model>
+	<isee:controls>
+		<isee:control priority="interactive" name="cancellation_percent" value="1"/>
+	</isee:controls>
+</xmile>
+
