@@ -43,6 +43,11 @@ The model offers a user-friendly interface to:
 - Simulate different scenarios to optimize decision-making.
 - Provide forecasts for the next 20 quarters.
 
+<img width="673" alt="Screenshot 2024-11-23 at 4 03 55 PM" src="https://github.com/user-attachments/assets/4fde5160-74d3-4c55-8ba1-a903042d2838">
+<img width="675" alt="Screenshot 2024-11-23 at 4 04 07 PM" src="https://github.com/user-attachments/assets/7ff2d0da-8b00-4549-aba8-e987e6876640">
+<img width="674" alt="Screenshot 2024-11-23 at 4 04 20 PM" src="https://github.com/user-attachments/assets/708ea3db-a785-45b8-a393-f74d0bdd1923">
+
+
 ## Conclusion
 
 The Innovation Lab DSS is a valuable tool for managing innovation projects at LSC. Its adaptability ensures relevance as organizational and market conditions evolve, enabling better resource allocation and strategic planning.
