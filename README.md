@@ -55,3 +55,8 @@ The Innovation Lab DSS is a valuable tool for managing innovation projects at LS
 ## References
 
 - Tutorials. (n.d.). [iSee Systems Tutorials](https://www.iseesystems.com/resources/tutorials/).
+
+## Documentation
+
+For detailed documentation, refer to the [Project Documentation (PDF)](itdproj.pdf).
+
